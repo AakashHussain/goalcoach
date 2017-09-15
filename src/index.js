@@ -1,0 +1,35 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+import {logUser} from "./action/index"
+import { Provider } from 'react-redux'
+import { createStore } from 'redux'
+import { Router, Route, browserHistory } from 'react-router';
+import { firebaseApp } from './firebase'
+import reducer from './reducers'
+
+import App from './components/app.js';
+import SignIn from './components/signIn.js';
+import SignUp from './components/signUp.js';
+
+const store=createStore(reducer);
+
+firebaseApp.auth().onAuthStateChanged(user=>{
+    if(user){
+        browserHistory.push('/app')
+        const {email}=user;
+        store.dispatch(logUser(email))
+    }else{
+        browserHistory.replace('/signin')
+    }
+})
+
+ReactDOM.render(
+    <Provider store={store}>
+        <Router path="/" history={browserHistory}>
+            <Route path="/app" component={App}/>
+            <Route path="/signin" component={SignIn}/>
+            <Route path="/signup" component={SignUp}/>
+
+        </Router>
+    </Provider>,document.getElementById('root')
+)
